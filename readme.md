@@ -1,12 +1,31 @@
 # Install K8s Dashboard
 
-These notes are an almost exact copy of notes from [Rancher.com](https://rancher.com/docs/k3s/latest/en/installation/kube-dashboard/).
+These notes are an almost exact copy of notes from [Rancher.com](https://rancher.com/docs/k3s/latest/en/installation/kube-dashboard/). 
 
-------
 
-This installation guide will help you to deploy and configure the [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) on K3s.
+---
 
-### Deploying the Kubernetes Dashboard
+[TOC]
+
+---
+
+## What's the point? 
+
+I wanted a fast way to deploy the dashboard. I added a Makefile with commands to make the deployment and interaction with the dashboard easy.
+
+## Deploying the Kubernetes Dashboard from Cloned Repository
+
+1. `git clone https://github.com/leewallen/install-k8s-dashboard.git`
+2. `cd install-k8s-dashboard/yaml`
+3. `make deploy`
+4. `make showtoken` and copy token to your clipboard, or `make copytoken` if you have pbcopy installed.
+5. `kubectl proxy` to allow access to the dashboard from your local machine.
+6. `open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login`
+
+
+> If more information is needed, then consult this installation guide for additional help with deploying and configuring the [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) on K3s.
+
+## Deploying the Kubernetes Dashboard from official Repository
 
 ```bash
 GITHUB_URL=https://github.com/kubernetes/dashboard/releases
@@ -15,13 +34,15 @@ wget -O kubernetes-dashboard.yml https://raw.githubusercontent.com/kubernetes/da
 kubectl create -f kubernetes-dashboard.yaml
 ```
 
+## YAML Information
+
 ### Dashboard RBAC Configuration
 
 > **IMPORTANT:**The `admin-user` created in this guide will have administrative privileges in the Dashboard.
 
 Create the following resource manifest files:
 
-##### dashboard.admin-user.yml
+#### dashboard.admin-user.yml
 
 ```yaml
 apiVersion: v1
@@ -33,7 +54,7 @@ metadata:
 
 
 
-##### dashboard.admin-user-role.yml
+#### dashboard.admin-user-role.yml
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -50,7 +71,7 @@ subjects:
   namespace: kubernetes-dashboard
 ```
 
-
+### Dashboard RBAC Deploy
 
 Deploy the `admin-user` configuration:
 
@@ -61,10 +82,10 @@ kubectl create -f dashboard.admin-user.yml -f dashboard.admin-user-role.yml
 ### Obtain the Bearer Token
 
 ```bash
-kubectl -n kubernetes-dashboard describe secret admin-user-token | grep ^token
+kubectl -n kubernetes-dashboard describe secret admin-user-token | grep "^token:"
 ```
 
-### Local Access to the Dashboard
+### Allow Local Access to the Dashboard
 
 To access the Dashboard you must create a secure channel to your K3s cluster:
 

@@ -51,17 +51,21 @@ colors: ## show all the colors
 
 help:
 	@echo "${WHITE}Commands available:${RESET}"
-	@echo "${BLUE}deploy${YELLOW}		Creates Kubernetes dashboard resources.${RESET}"	
-	@echo "${BLUE}clean${YELLOW}		Deletes Kubernetes dashboard resources.${RESET}"	
-	@echo "${BLUE}copytoken${YELLOW}	Copies the admin-user token to the clipboard.${RESET}"	
-	@echo "${BLUE}get${YELLOW}		Displays Kubernetes dashboard resource info.${RESET}"	
-		
+	@echo "${BLUE}deploy${YELLOW}		Creates Kubernetes dashboard resources.${RESET}"
+	@echo "${BLUE}clean${YELLOW}		Deletes Kubernetes dashboard resources.${RESET}"
+	@echo "${BLUE}copytoken${YELLOW}	Copies the admin-user token to the clipboard.${RESET}"
+	@echo "${BLUE}showtoken${YELLOW}	Displays the admin-user token so you can use it for accessing the dashboard.${RESET}"
+	@echo "${BLUE}get${YELLOW}		Displays Kubernetes dashboard resource info.${RESET}"
+
 deploy:
 	@echo "${WHITE}Deploying...${PURPLE}"
 	kubectl create -f ./kubernetes-dashboard.yml
 	kubectl create -f dashboard.admin-user.yml -f dashboard.admin-user-role.yml
 	kubectl -n kubernetes-dashboard describe secret admin-user | grep "^token:" | sed 's/.* //' | pbcopy
 	@echo "${BLUE}http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/${RESET}"
+
+showtoken:
+	kubectl -n kubernetes-dashboard describe secret admin-user | grep "^token:" | sed 's/.* //'
 
 copytoken:
 	kubectl -n kubernetes-dashboard describe secret admin-user | grep "^token:" | sed 's/.* //' | pbcopy
